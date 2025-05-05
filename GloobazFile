@@ -1,0 +1,40 @@
+import telebot
+from telebot import types
+
+# توکن ربات تلگرام و آدرس کیف پول
+TOKEN = '7993730901:AAGGCt6iWhAwI3cjynbA424vDW813NyfoCs'
+wallet_address = 'UQDiz_82ibkY4r8gM_wFy2Z6f4M7_d8R8Ua2Ft9RdWKqhMSP'  # آدرس کیف پول
+bot = telebot.TeleBot(TOKEN)
+
+# پیغام خوش‌آمدگویی
+@bot.message_handler(commands=['start'])
+def send_welcome(message):
+    bot.send_message(message.chat.id, "سلام! به ربات فروش فایل‌های آموزشی گلوباز خوش اومدی. برای خرید فایل، روی دکمه 'خرید فایل' کلیک کن.")
+
+# منوی اصلی با دکمه
+@bot.message_handler(commands=['menu'])
+def show_menu(message):
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    item = types.KeyboardButton("خرید فایل")
+    markup.add(item)
+    bot.send_message(message.chat.id, "برای خرید فایل، روی دکمه زیر کلیک کن.", reply_markup=markup)
+
+# لیست فایل‌ها (برای اینجا فقط چند نمونه فایل فرضی می‌ذاریم)
+@bot.message_handler(func=lambda message: message.text == "خرید فایل")
+def send_files(message):
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    item1 = types.KeyboardButton("فایل آموزش برنامه‌نویسی")
+    item2 = types.KeyboardButton("فایل آموزش بازاریابی")
+    item3 = types.KeyboardButton("بازگشت به منو")
+    markup.add(item1, item2, item3)
+    bot.send_message(message.chat.id, "لطفاً فایل مورد نظر رو انتخاب کن.", reply_markup=markup)
+
+# پرداخت و دریافت فایل
+@bot.message_handler(func=lambda message: message.text in ["فایل آموزش برنامه‌نویسی", "فایل آموزش بازاریابی"])
+def process_payment(message):
+    bot.send_message(message.chat.id, f"برای خرید '{message.text}'، لطفاً به آدرس زیر {wallet_address} مبلغ را ارسال کن و سپس تراکنش رو تایید کن. بعد از تایید، فایل به شما ارسال خواهد شد.")
+    bot.send_message(message.chat.id, "آدرس کیف پول برای ارسال پرداخت:\n" + wallet_address)
+
+# اجرای ربات
+if __name__ == '__main__':
+    bot.polling(none_stop=True)
